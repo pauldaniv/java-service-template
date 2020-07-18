@@ -1,3 +1,7 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 plugins {
     java
     idea
@@ -8,7 +12,7 @@ plugins {
     id("org.flywaydb.flyway") version "6.5.1"
 }
 
-group = "com.pauldaniv.template.service"
+group = "com.pauldaniv.template.persistence"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -22,16 +26,28 @@ configure<JavaPluginConvention> {
 
 dependencies {
     implementation(project(":api"))
-    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.codehaus.groovy:groovy:3.0.4")
 }
 
-docker {
-    springBootApplication {
-        baseImage.set("openjdk:8-alpine")
-        ports.set(listOf(9090, 8080))
-        images.set(setOf("awesome-spring-boot:1.115", "awesome-spring-boot:latest"))
-        jvmArgs.set(listOf("-Dspring.profiles.active=production", "-Xmx2048m"))
+tasks.getByName<BootJar>("bootJar") {
+    enabled = false
+}
+
+flyway {
+    url = dbURL()
+    user = dbUser()
+    password = dbPass()
+    schemas = arrayOf("public")
+    locations = arrayOf("filesystem:src/main/resources/migration/postgres")
+}
+
+tasks.register("makeMigration") {
+    doLast {
+        val migrationContext = project.findProperty("migrationName") ?: "migration"
+        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd.hh.mm.ss"))
+        val path = "src/main/resources/migration/postgres"
+        val fileName = "${path}/V${timestamp}__${migrationContext}.sql"
+        File(fileName).createNewFile()
     }
 }
 
