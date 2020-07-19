@@ -1,4 +1,3 @@
-import org.springframework.boot.gradle.tasks.bundling.BootJar
 import com.rohanprabhu.gradle.plugins.kdjooq.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -87,16 +86,108 @@ tasks.register("makeMigration") {
     }
 }
 
-tasks.build {
-    finalizedBy(tasks.flywayMigrate)
+tasks.register("startPostgres") {
+    doLast {
+        if (isDockerRunning()) {
+            println("Postgres is already running. Skipping...")
+        } else {
+            println("Bringing up Postgres container...")
+            startDocker()
+        }
+    }
 }
+
+tasks.register("stopPostgres") {
+    doLast {
+        if (isDockerRunning()) {
+            stopDocker()
+            if (!remoteBuild()) {
+                rmDocker()
+            }
+        } else {
+            println("Postgres is already stopped. Skipping...")
+        }
+    }
+}
+
+tasks.clean {
+    dependsOn(tasks.findByName("stopPostgres"))
+}
+
+tasks.flywayMigrate {
+    dependsOn(tasks.findByName("startPostgres"))
+}
+
+tasks.withType<JooqCodeGenerationTask> {
+    dependsOn(tasks.flywayMigrate)
+}
+
+fun remoteBuild() = "echo \$REMOTE_BUILD".exec().toBoolean()
 
 fun dbURL() = "jdbc:postgresql://${dbHost()}:${dbPort()}/${dbName()}"
 
 fun dbHost() = findParam("DB_HOST") ?: "localhost"
-fun dbPort() = findParam("DB_PORT") ?: 5432
+fun dbPort() = findParam("DB_PORT") ?: 54320
 fun dbUser() = findParam("DB_USER") ?: "test"
 fun dbPass() = findParam("DB_PASS") ?: "test"
 fun dbName() = findParam("DB_NAME") ?: "test"
 
 fun findParam(name: String): String? = project.findProperty(name) as String? ?: System.getenv(name)
+
+val dbContainer = "tmpl-postgres"
+
+fun isPostgresHealthy(containerName: String = dbContainer)
+    = listOf("docker", "exec", containerName, "psql", "-c", "select version()", "-U", dbUser())
+    .exec()
+    .contains("PostgreSQL 12.3.*compiled by".toRegex())
+
+fun isDockerRunning(containerName: String = dbContainer)
+    = "docker container inspect -f '{{.State.Status}}' $containerName".exec().contains("running")
+
+fun startDocker(containerName: String = dbContainer) {
+    """
+  docker run --name $containerName
+  -e POSTGRES_PASSWORD=${dbPass()}
+  -e POSTGRES_USER=${dbUser()}
+  -e POSTGRES_DB=${dbName()}
+  -p ${dbPort()}:5432
+  -d postgres:12.3""".trimIndent().exec()
+    println("Waiting for container to be healthy...")
+
+    var count = 0
+    while (!isPostgresHealthy() && count < 20) {
+        count++
+        Thread.sleep(1000L)
+        println(count)
+        println("Retrying")
+    }
+    if (count >= 20) {
+        println("Unable to bring up postgres container...")
+    } else {
+        println("Container is up!")
+    }
+}
+
+fun stopDocker(containerName: String = dbContainer) {
+    val exec = "docker stop $containerName".exec()
+    println(exec)
+}
+
+fun rmDocker(containerName: String = dbContainer) = "docker rm $containerName".exec()
+
+fun List<String>.exec(workingDir: File = file("./")): String {
+    val proc = ProcessBuilder(*this.toTypedArray())
+        .directory(workingDir)
+        .redirectErrorStream(true)
+        .redirectOutput(ProcessBuilder.Redirect.PIPE)
+        .redirectError(ProcessBuilder.Redirect.PIPE)
+        .start()
+
+    proc.waitFor(1, TimeUnit.MINUTES)
+    return proc.inputStream.bufferedReader().readLines().joinToString("\n")
+}
+
+fun String.exec(): String {
+    val parts = this.split("\\s".toRegex())
+    return parts.toList().exec()
+}
