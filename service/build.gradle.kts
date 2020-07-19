@@ -22,6 +22,7 @@ configure<JavaPluginConvention> {
 
 dependencies {
     implementation(project(":api"))
+    implementation(project(":persistence"))
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.codehaus.groovy:groovy:3.0.4")
 }

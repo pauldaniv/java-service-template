@@ -1,6 +1,6 @@
 package com.pauldaniv.template.client;
 
-import com.pauldaniv.template.model.TestOne;
+import com.pauldaniv.template.request.TestOne;
 import feign.Param;
 import feign.RequestLine;
 

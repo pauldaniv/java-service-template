@@ -1,7 +1,7 @@
 package com.pauldaniv.template.client;
 
 import com.pauldaniv.template.api.TestOneService;
-import com.pauldaniv.template.model.TestOne;
+import com.pauldaniv.template.request.TestOne;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

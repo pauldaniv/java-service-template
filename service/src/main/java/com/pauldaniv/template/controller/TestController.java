@@ -1,7 +1,7 @@
 package com.pauldaniv.template.controller;
 
 import com.pauldaniv.template.api.TestOneService;
-import com.pauldaniv.template.model.TestOne;
+import com.pauldaniv.template.request.TestOne;
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
