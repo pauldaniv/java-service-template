@@ -101,11 +101,11 @@ tasks.register("stopPostgres") {
     doLast {
         if (isDockerRunning()) {
             stopDocker()
-            if (!remoteBuild()) {
-                rmDocker()
-            }
         } else {
             println("Postgres is already stopped. Skipping...")
+        }
+        if (!remoteBuild()) {
+            rmDocker()
         }
     }
 }
@@ -122,7 +122,7 @@ tasks.withType<JooqCodeGenerationTask> {
     dependsOn(tasks.flywayMigrate)
 }
 
-fun remoteBuild() = "echo \$REMOTE_BUILD".exec().toBoolean()
+fun remoteBuild(): Boolean = (System.getenv("REMOTE_BUILD") ?: "false").toBoolean()
 
 fun dbURL() = "jdbc:postgresql://${dbHost()}:${dbPort()}/${dbName()}"
 
@@ -159,7 +159,7 @@ fun startDocker(containerName: String = dbContainer) {
         count++
         Thread.sleep(1000L)
         println(count)
-        println("Retrying")
+        println("Retrying...")
     }
     if (count >= 20) {
         println("Unable to bring up postgres container...")
@@ -173,7 +173,7 @@ fun stopDocker(containerName: String = dbContainer) {
     println(exec)
 }
 
-fun rmDocker(containerName: String = dbContainer) = "docker rm $containerName".exec()
+fun rmDocker(containerName: String = dbContainer) = "docker rm -v $containerName".exec()
 
 fun List<String>.exec(workingDir: File = file("./")): String {
     val proc = ProcessBuilder(*this.toTypedArray())
