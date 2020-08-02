@@ -35,13 +35,3 @@ docker {
         jvmArgs.set(listOf("-Dspring.profiles.active=production", "-Xmx2048m"))
     }
 }
-
-fun dbURL() = "jdbc:postgresql://${dbHost()}:${dbPort()}/${dbName()}"
-
-fun dbHost() = findParam("DB_HOST") ?: "localhost"
-fun dbPort() = findParam("DB_PORT") ?: 54321
-fun dbUser() = findParam("DB_USER") ?: "test"
-fun dbPass() = findParam("DB_PASS") ?: "test"
-fun dbName() = findParam("DB_NAME") ?: "test"
-
-fun findParam(name: String): String? = project.findProperty(name) as String? ?: System.getenv(name)
