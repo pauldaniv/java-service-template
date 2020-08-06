@@ -12,6 +12,7 @@ configure<JavaPluginConvention> {
 allprojects {
     apply(plugin = "java")
     apply(plugin = "idea")
+    apply(plugin = "groovy")
 
     repositories {
         jcenter()
