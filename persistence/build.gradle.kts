@@ -28,10 +28,10 @@ configure<JavaPluginConvention> {
 
 dependencies {
     implementation(project(":api"))
-    implementation("org.postgresql:postgresql:42.2.12")
-    implementation("org.codehaus.groovy:groovy:3.0.4")
+    implementation("org.postgresql:postgresql")
+    implementation("org.codehaus.groovy:groovy")
     implementation ("org.jooq:jooq")
-    jooqGeneratorRuntime("org.postgresql:postgresql:42.2.12")
+    jooqGeneratorRuntime("org.postgresql:postgresql")
     implementation("org.springframework.boot:spring-boot-starter-web")
 }
 

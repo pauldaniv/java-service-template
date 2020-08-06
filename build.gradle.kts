@@ -16,11 +16,20 @@ allprojects {
     repositories {
         jcenter()
         mavenCentral()
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/pauldaniv/bom-template")
+            credentials {
+                username = project.findProperty("gpr.usr") as String? ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+            }
+        }
     }
 
     dependencies {
-        implementation("org.projectlombok:lombok:1.18.4")
-        annotationProcessor("org.projectlombok:lombok:1.18.4")
+        implementation(platform("com.paul:bom-template:0.0.+"))
+        implementation("org.projectlombok:lombok")
+        annotationProcessor("org.projectlombok:lombok")
     }
 
     idea {
@@ -33,5 +42,8 @@ allprojects {
                     file("out")
             ))
         }
+    }
+    configurations.all {
+        resolutionStrategy.cacheDynamicVersionsFor(1, "minutes")
     }
 }
