@@ -2,6 +2,7 @@ plugins {
     base
     java
     idea
+    id("io.freefair.lombok") version "5.1.1" apply false
     kotlin("jvm") version "1.3.50" apply false
 }
 
@@ -13,7 +14,7 @@ allprojects {
     apply(plugin = "java")
     apply(plugin = "idea")
     apply(plugin = "groovy")
-
+    apply(plugin = "io.freefair.lombok")
     repositories {
         jcenter()
         mavenCentral()
@@ -29,8 +30,6 @@ allprojects {
 
     dependencies {
         implementation(platform("com.paul:bom-template:0.0.+"))
-        implementation("org.projectlombok:lombok")
-        annotationProcessor("org.projectlombok:lombok")
     }
 
     idea {
