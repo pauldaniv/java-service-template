@@ -16,11 +16,9 @@ repositories {
 }
 
 dependencies {
-    implementation("javax.ws.rs:javax.ws.rs-api:2.1.1")
-    implementation("io.github.openfeign:feign-okhttp:9.3.1")
-    implementation("io.github.openfeign:feign-gson:9.3.1")
-    implementation("io.github.openfeign:feign-slf4j:9.3.1")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }
 
 configure<JavaPluginConvention> {
