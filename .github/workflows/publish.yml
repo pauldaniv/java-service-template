@@ -66,7 +66,9 @@ jobs:
         run: ./gradlew :service:dockerBuildImage
 
       - name: Log into registry
-        run: echo "${{ secrets.GITLAB_DOCKER_REGISTRY_PASS }}" | docker registry.gitlab.com -u ${{ secrets.GITLAB_DOCKER_REGISTRY_USER }} --password-stdin
+        run: |
+          echo "${{ secrets.GITLAB_DOCKER_REGISTRY_PASS }}"\
+            | docker registry.gitlab.com -u ${{ secrets.GITLAB_DOCKER_REGISTRY_USER }} --password-stdin
 
       - name: Push image
         run: ./gradlew :service:dockerPushImage
