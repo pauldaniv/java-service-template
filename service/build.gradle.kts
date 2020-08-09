@@ -15,7 +15,7 @@ docker {
   springBootApplication {
     baseImage.set("openjdk:8-alpine")
     ports.set(listOf(9090, 8080))
-    images.set(setOf("${getDockerRegistryUrl()}/${project.name}:${project.version}"))
+    images.set(setOf("${getDockerRegistryUrl()}/${rootProject.name}/${project.name}:${project.version}"))
     jvmArgs.set(listOf("-Dspring.profiles.active=production", "-Xmx2048m"))
   }
 }
