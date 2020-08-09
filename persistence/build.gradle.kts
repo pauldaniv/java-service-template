@@ -33,6 +33,7 @@ flyway {
   locations = arrayOf("filesystem:src/main/resources/migration/postgres")
 }
 
+//todo replace with official jooq plugin
 jooqGenerator {
   configuration("primary", sourceSets.getByName("main")) {
     configuration = jooqCodegenConfiguration {
