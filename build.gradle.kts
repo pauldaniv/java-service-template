@@ -10,6 +10,10 @@ configure<JavaPluginConvention> {
   sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
+val githubUsr: String = (project.findProperty("gpr.usr") ?: System.getenv("USERNAME") ?: "").toString()
+val githubKey: String = (project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+?: System.getenv("GITHUB_TOKEN")).toString()
+
 allprojects {
   apply(plugin = "java")
   apply(plugin = "idea")
@@ -22,16 +26,16 @@ allprojects {
       name = "GitHubPackages"
       url = uri("https://maven.pkg.github.com/pauldaniv/bom-template")
       credentials {
-        username = project.findProperty("gpr.usr") as String? ?: System.getenv("USERNAME")
-        password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+        username = githubUsr
+        password = githubKey
       }
     }
     maven {
       name = "GitHubPackages"
       url = uri("https://maven.pkg.github.com/pauldaniv/java-library-template")
       credentials {
-        username = project.findProperty("gpr.usr") as String? ?: System.getenv("USERNAME")
-        password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+        username = githubUsr
+        password = githubKey
       }
     }
   }
