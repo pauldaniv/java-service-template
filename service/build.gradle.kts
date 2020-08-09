@@ -20,9 +20,9 @@ docker {
   }
 }
 
-fun getDockerRegistryUrl(): String {
+fun getDockerRegistryUrl(): String? {
   val targetRegistry = findParam("TARGET_REGISTRY") ?: "GITHUB"
-  return findParam("${targetRegistry}_DOCKER_REGISTRY_URL") ?: findParam("DOCKER_REGISTRY_URL")!!
+  return findParam("${targetRegistry}_DOCKER_REGISTRY_URL") ?: findParam("DOCKER_REGISTRY_URL")
 }
 
 fun findParam(name: String): String? = project.findProperty(name) as String? ?: System.getenv(name)

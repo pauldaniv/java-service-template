@@ -9,6 +9,10 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
+  GITLAB_DOCKER_REGISTRY_URL: ${{ secrets.GITLAB_DOCKER_REGISTRY_URL }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -36,11 +40,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup env
-        run: |
-          echo "::set-env name=TARGET_REGISTRY::GITHUB"
-          echo "::set-env name=DOCKER_REGISTRY_URL::${{ secrets.DOCKER_REGISTRY_URL }}"
-          echo "::set-env name=GITLAB_DOCKER_REGISTRY_URL::${{ secrets.GITLAB_DOCKER_REGISTRY_URL }}"
+      - name: Setup variables
+        run: echo "::set-env name=TARGET_REGISTRY::GITHUB"
+
       - name: Build image
         run: ./gradlew :service:dockerBuildImage
 
