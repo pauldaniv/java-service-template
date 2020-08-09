@@ -10,7 +10,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,3 +25,46 @@ jobs:
       run: chmod +x gradlew
     - name: Run tests
       run: ./gradlew test
+
+  pushDocker:
+    # Ensure test job passes before pushing image.
+    needs: test
+
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup env
+        run: echo "::set-env name=TARGET_REGISTRY::GITHUB"
+
+      - name: Build image
+        run: ./gradlew :service:dockerBuildImage
+
+      - name: Log into registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+      - name: Push image
+        run: ./gradlew :service:dockerPushImage
+
+  pushDockerToGitilab:
+    # Ensure test job passes before pushing image.
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v2
+        -
+      - name: Setup env
+        run: echo "::set-env name=TARGET_REGISTRY::GITLAB"
+
+      - name: Build image
+        run: ./gradlew :service:dockerBuildImage
+
+      - name: Log into registry
+        run: echo "${{ secrets.GITLAB_DOCKER_REGISTRY_PASS }}" | docker registry.gitlab.com -u ${{ secrets.GITLAB_DOCKER_REGISTRY_USER }} --password-stdin
+
+      - name: Push image
+        run: ./gradlew :service:dockerPushImage

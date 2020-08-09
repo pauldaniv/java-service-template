@@ -3,24 +3,18 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 plugins {
-  id("org.springframework.boot") version "2.2.0.RELEASE"
-  id("io.spring.dependency-management") version "1.0.8.RELEASE"
-  id("com.bmuschko.docker-spring-boot-application") version "6.2.0"
   id("org.flywaydb.flyway") version "6.5.1"
   id("com.rohanprabhu.kotlin-dsl-jooq") version "0.4.6"
   id("nu.studer.jooq") version "4.2"
 }
 
-group = "com.pauldaniv.template.persistence"
 version = "1.0-SNAPSHOT"
 
 dependencies {
   implementation(project(":api"))
-  implementation("org.postgresql:postgresql")
-  implementation("org.codehaus.groovy:groovy")
   implementation("org.jooq:jooq")
+  implementation("org.postgresql:postgresql")
   jooqGeneratorRuntime("org.postgresql:postgresql")
-  implementation("org.springframework.boot:spring-boot-starter-web")
 }
 
 tasks.bootJar {
