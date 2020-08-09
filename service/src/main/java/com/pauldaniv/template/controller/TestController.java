@@ -1,6 +1,7 @@
 package com.pauldaniv.template.controller;
 
 import com.pauldaniv.template.api.TestOneService;
+import com.pauldaniv.template.lib.second.consume.User;
 import com.pauldaniv.template.request.TestOne;
 import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
@@ -15,5 +16,9 @@ public class TestController {
 
     ResponseEntity<TestOne> getIt() {
         return ResponseEntity.ok(testOneService.getIt());
+    }
+
+    ResponseEntity<User> getUser() {
+        return ResponseEntity.ok(new User("Test", "aoeu"));
     }
 }

@@ -1,6 +1,7 @@
 package com.pauldaniv.template.service;
 
 import com.pauldaniv.template.api.TestOneService;
+import com.pauldaniv.template.lib.first.util.TestUtil;
 import com.pauldaniv.template.request.TestOne;
 import org.springframework.stereotype.Service;
 
@@ -8,6 +9,6 @@ import org.springframework.stereotype.Service;
 public class TestOneServiceImpl implements TestOneService {
     @Override
     public TestOne getIt() {
-        throw new RuntimeException();
+        return new TestOne(TestUtil.join("first", "second"));
     }
 }

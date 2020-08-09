@@ -3,111 +3,111 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 plugins {
-    id("org.springframework.boot") version "2.2.0.RELEASE"
-    id("io.spring.dependency-management") version "1.0.8.RELEASE"
-    id("com.bmuschko.docker-spring-boot-application") version "6.2.0"
-    id("org.flywaydb.flyway") version "6.5.1"
-    id("com.rohanprabhu.kotlin-dsl-jooq") version "0.4.6"
-    id("nu.studer.jooq") version "4.2"
+  id("org.springframework.boot") version "2.2.0.RELEASE"
+  id("io.spring.dependency-management") version "1.0.8.RELEASE"
+  id("com.bmuschko.docker-spring-boot-application") version "6.2.0"
+  id("org.flywaydb.flyway") version "6.5.1"
+  id("com.rohanprabhu.kotlin-dsl-jooq") version "0.4.6"
+  id("nu.studer.jooq") version "4.2"
 }
 
 group = "com.pauldaniv.template.persistence"
 version = "1.0-SNAPSHOT"
 
 dependencies {
-    implementation(project(":api"))
-    implementation("org.postgresql:postgresql")
-    implementation("org.codehaus.groovy:groovy")
-    implementation ("org.jooq:jooq")
-    jooqGeneratorRuntime("org.postgresql:postgresql")
-    implementation("org.springframework.boot:spring-boot-starter-web")
+  implementation(project(":api"))
+  implementation("org.postgresql:postgresql")
+  implementation("org.codehaus.groovy:groovy")
+  implementation("org.jooq:jooq")
+  jooqGeneratorRuntime("org.postgresql:postgresql")
+  implementation("org.springframework.boot:spring-boot-starter-web")
 }
 
 tasks.bootJar {
-    enabled = false
+  enabled = false
 }
 
 tasks.jar {
-    enabled = true
+  enabled = true
 }
 
 flyway {
-    url = dbURL()
-    user = dbUser()
-    password = dbPass()
-    schemas = arrayOf("public")
-    locations = arrayOf("filesystem:src/main/resources/migration/postgres")
+  url = dbURL()
+  user = dbUser()
+  password = dbPass()
+  schemas = arrayOf("public")
+  locations = arrayOf("filesystem:src/main/resources/migration/postgres")
 }
 
 jooqGenerator {
-    configuration("primary", sourceSets.getByName("main")) {
-        configuration = jooqCodegenConfiguration {
-            jdbc {
-                username = dbUser()
-                password = dbPass()
-                driver = "org.postgresql.Driver"
-                url = dbURL()
-            }
+  configuration("primary", sourceSets.getByName("main")) {
+    configuration = jooqCodegenConfiguration {
+      jdbc {
+        username = dbUser()
+        password = dbPass()
+        driver = "org.postgresql.Driver"
+        url = dbURL()
+      }
 
-            generator {
-                target {
-                    packageName = "com.paul.template.db.jooq"
-                    directory = "${project.buildDir}/generated/jooq/primary"
-                }
-
-                database {
-                    name = "org.jooq.meta.postgres.PostgresDatabase"
-                    inputSchema = "public"
-                }
-            }
+      generator {
+        target {
+          packageName = "com.paul.template.db.jooq"
+          directory = "${project.buildDir}/generated/jooq/primary"
         }
+
+        database {
+          name = "org.jooq.meta.postgres.PostgresDatabase"
+          inputSchema = "public"
+        }
+      }
     }
+  }
 }
 
 tasks.register("makeMigration") {
-    doLast {
-        val migrationContext = project.findProperty("migrationName") ?: "migration"
-        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd.hh.mm.ss"))
-        val path = "${project.name}/src/main/resources/migration/postgres"
-        val fileName = "${path}/V${timestamp}__${migrationContext}.sql"
-        File(fileName).createNewFile()
-    }
+  doLast {
+    val migrationContext = project.findProperty("migrationName") ?: "migration"
+    val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd.hh.mm.ss"))
+    val path = "${project.name}/src/main/resources/migration/postgres"
+    val fileName = "${path}/V${timestamp}__${migrationContext}.sql"
+    File(fileName).createNewFile()
+  }
 }
 
 tasks.register("startPostgres") {
-    doLast {
-        if (isDockerRunning()) {
-            println("Postgres is already running. Skipping...")
-        } else {
-            println("Bringing up Postgres container...")
-            startDocker()
-        }
+  doLast {
+    if (isDockerRunning()) {
+      println("Postgres is already running. Skipping...")
+    } else {
+      println("Bringing up Postgres container...")
+      startDocker()
     }
+  }
 }
 
 tasks.register("stopPostgres") {
-    doLast {
-        if (isDockerRunning()) {
-            stopDocker()
-        } else {
-            println("Postgres is already stopped. Skipping...")
-        }
-        if (!remoteBuild()) {
-            rmDocker()
-        }
+  doLast {
+    if (isDockerRunning()) {
+      stopDocker()
+    } else {
+      println("Postgres is already stopped. Skipping...")
     }
+    if (!remoteBuild()) {
+      rmDocker()
+    }
+  }
 }
 
 tasks.clean {
-    dependsOn(tasks.findByName("stopPostgres"))
+  dependsOn(tasks.findByName("stopPostgres"))
 }
 
 tasks.flywayMigrate {
-    dependsOn(tasks.findByName("startPostgres"))
+  dependsOn(tasks.findByName("startPostgres"))
 }
 
 tasks.withType<JooqCodeGenerationTask> {
-    dependsOn(tasks.flywayMigrate)
+  dependsOn(tasks.flywayMigrate)
 }
 
 fun remoteBuild(): Boolean = (System.getenv("REMOTE_BUILD") ?: "false").toBoolean()
@@ -124,58 +124,56 @@ fun findParam(name: String): String? = project.findProperty(name) as String? ?: 
 
 val dbContainer = "tmpl-postgres"
 
-fun isPostgresHealthy(containerName: String = dbContainer)
-    = listOf("docker", "exec", containerName, "psql", "-c", "select version()", "-U", dbUser())
+fun isPostgresHealthy(containerName: String = dbContainer) = listOf("docker", "exec", containerName, "psql", "-c", "select version()", "-U", dbUser())
     .exec()
     .contains("PostgreSQL 12.3.*compiled by".toRegex())
 
-fun isDockerRunning(containerName: String = dbContainer)
-    = "docker container inspect -f '{{.State.Status}}' $containerName".exec().contains("running")
+fun isDockerRunning(containerName: String = dbContainer) = "docker container inspect -f '{{.State.Status}}' $containerName".exec().contains("running")
 
 fun startDocker(containerName: String = dbContainer) {
-    """
+  """
   docker run --name $containerName
   -e POSTGRES_PASSWORD=${dbPass()}
   -e POSTGRES_USER=${dbUser()}
   -e POSTGRES_DB=${dbName()}
   -p ${dbPort()}:5432
   -d postgres:12.3""".trimIndent().exec()
-    println("Waiting for container to be healthy...")
+  println("Waiting for container to be healthy...")
 
-    var count = 0
-    while (!isPostgresHealthy() && count < 20) {
-        count++
-        Thread.sleep(1000L)
-        println(count)
-        println("Retrying...")
-    }
-    if (count >= 20) {
-        println("Unable to bring up postgres container...")
-    } else {
-        println("Container is up!")
-    }
+  var count = 0
+  while (!isPostgresHealthy() && count < 20) {
+    count++
+    Thread.sleep(1000L)
+    println(count)
+    println("Retrying...")
+  }
+  if (count >= 20) {
+    println("Unable to bring up postgres container...")
+  } else {
+    println("Container is up!")
+  }
 }
 
 fun stopDocker(containerName: String = dbContainer) {
-    val exec = "docker stop $containerName".exec()
-    println(exec)
+  val exec = "docker stop $containerName".exec()
+  println(exec)
 }
 
 fun rmDocker(containerName: String = dbContainer) = "docker rm -v $containerName".exec()
 
 fun List<String>.exec(workingDir: File = file("./")): String {
-    val proc = ProcessBuilder(*this.toTypedArray())
-        .directory(workingDir)
-        .redirectErrorStream(true)
-        .redirectOutput(ProcessBuilder.Redirect.PIPE)
-        .redirectError(ProcessBuilder.Redirect.PIPE)
-        .start()
+  val proc = ProcessBuilder(*this.toTypedArray())
+      .directory(workingDir)
+      .redirectErrorStream(true)
+      .redirectOutput(ProcessBuilder.Redirect.PIPE)
+      .redirectError(ProcessBuilder.Redirect.PIPE)
+      .start()
 
-    proc.waitFor(1, TimeUnit.MINUTES)
-    return proc.inputStream.bufferedReader().readLines().joinToString("\n")
+  proc.waitFor(1, TimeUnit.MINUTES)
+  return proc.inputStream.bufferedReader().readLines().joinToString("\n")
 }
 
 fun String.exec(): String {
-    val parts = this.split("\\s".toRegex())
-    return parts.toList().exec()
+  val parts = this.split("\\s".toRegex())
+  return parts.toList().exec()
 }
