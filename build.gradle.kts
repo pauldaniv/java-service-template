@@ -14,8 +14,8 @@ configure<JavaPluginConvention> {
   sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
-val githubUsr: String = findParam("gpr.usr") ?: findParam("USERNAME") ?: ""
-val githubKey: String? = findParam("gpr.key") ?: findParam("TOKEN") ?: findParam("GITHUB_TOKEN")
+val githubUsr: String = findParam("gpr.usr", "USERNAME") ?: ""
+val githubKey: String? = findParam("gpr.key", "TOKEN", "GITHUB_TOKEN")
 
 subprojects {
   apply(plugin = "java")
@@ -68,4 +68,12 @@ subprojects {
   }
 }
 
-fun findParam(name: String): String? = project.findProperty(name) as String? ?: System.getenv(name)
+fun findParam(vararg names: String): String? {
+  for (name in names) {
+    val param = project.findProperty(name) as String? ?: System.getenv(name)
+    if (param != null) {
+      return param
+    }
+  }
+  return null
+}
