@@ -14,9 +14,8 @@ configure<JavaPluginConvention> {
   sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
-val githubUsr: String = (project.findProperty("gpr.usr") ?: System.getenv("USERNAME") ?: "").toString()
-val githubKey: String = (project.findProperty("gpr.key") ?: System.getenv("TOKEN")
-?: System.getenv("GITHUB_TOKEN")).toString()
+val githubUsr: String = findParam("gpr.usr") ?: findParam("USERNAME") ?: ""
+val githubKey: String? = findParam("gpr.key") ?: findParam("TOKEN") ?: findParam("GITHUB_TOKEN")
 
 subprojects {
   apply(plugin = "java")
@@ -68,3 +67,5 @@ subprojects {
     resolutionStrategy.cacheDynamicVersionsFor(1, "minutes")
   }
 }
+
+fun findParam(name: String): String? = project.findProperty(name) as String? ?: System.getenv(name)
