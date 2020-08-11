@@ -14,7 +14,7 @@ env:
   GITLAB_DOCKER_REGISTRY_URL: ${{ secrets.GITLAB_DOCKER_REGISTRY_URL }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
-  test:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,10 +27,12 @@ jobs:
       run: chmod +x gradlew
     - name: Run tests
       run: ./gradlew test
+    - name: Publish artifacts
+      run: ./gradlew publish
 
   pushDocker:
     # Ensure test job passes before pushing image.
-    needs: test
+    needs: publish
 
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
@@ -49,7 +51,7 @@ jobs:
 
   pushDockerToGitilab:
     # Ensure test job passes before pushing image.
-    needs: test
+    needs: publish
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
 
