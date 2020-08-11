@@ -7,8 +7,8 @@ version = "1.0-SNAPSHOT"
 dependencies {
   implementation(project(":api"))
   implementation(project(":persistence"))
-  implementation("com.pauldaniv.java.library.template:first:1.0-SNAPSHOT")
-  implementation("com.pauldaniv.java.library.template:second:1.0-SNAPSHOT")
+  implementation("com.pauldaniv.library.template:first:1.0-SNAPSHOT")
+  implementation("com.pauldaniv.library.template:second:1.0-SNAPSHOT")
 }
 
 docker {

@@ -21,10 +21,6 @@ tasks.bootJar {
   enabled = false
 }
 
-tasks.jar {
-  enabled = true
-}
-
 flyway {
   url = dbURL()
   user = dbUser()
