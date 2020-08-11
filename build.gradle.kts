@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 plugins {
   base
   java
@@ -11,9 +13,10 @@ plugins {
 
 val githubUsr: String = findParam("gpr.usr", "USERNAME") ?: ""
 val githubKey: String? = findParam("gpr.key", "TOKEN", "GITHUB_TOKEN")
-println(githubKey)
+
 subprojects {
   group = "com.pauldaniv.java.service.template"
+
   apply(plugin = "java")
   apply(plugin = "idea")
   apply(plugin = "groovy")
@@ -72,6 +75,15 @@ subprojects {
         artifact(sourcesJar)
       }
     }
+  }
+
+  if (project.name != "service") {
+    tasks.getByName<BootJar>("bootJar") {
+      enabled = false
+    }
+  }
+  tasks.getByName<Jar>("jar") {
+    enabled = true
   }
 
   idea {

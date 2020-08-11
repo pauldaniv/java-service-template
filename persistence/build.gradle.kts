@@ -17,10 +17,6 @@ dependencies {
   jooqGeneratorRuntime("org.postgresql:postgresql")
 }
 
-tasks.bootJar {
-  enabled = false
-}
-
 flyway {
   url = dbURL()
   user = dbUser()
