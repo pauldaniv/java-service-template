@@ -10,8 +10,11 @@ plugins {
   kotlin("jvm") version "1.3.50" apply false
 }
 
+val packagesUrl = "https://maven.pkg.github.com/pauldaniv"
+
 val githubUsr: String = findParam("gpr.usr", "USERNAME") ?: ""
-val githubKey: String? = findParam("gpr.key", "TOKEN", "GITHUB_TOKEN")
+val publishKey: String? = findParam("gpr.key", "GITHUB_TOKEN")
+val packageKey = findParam("TOKEN", "PACKAGES_ACCESS_TOKEN") ?: publishKey
 
 subprojects {
   group = "com.pauldaniv.java.service.template"
@@ -32,7 +35,7 @@ subprojects {
       url = uri("https://maven.pkg.github.com/pauldaniv/bom-template")
       credentials {
         username = githubUsr
-        password = githubKey
+        password = packageKey
       }
     }
     maven {
@@ -40,7 +43,7 @@ subprojects {
       url = uri("https://maven.pkg.github.com/pauldaniv/java-library-template")
       credentials {
         username = githubUsr
-        password = githubKey
+        password = packageKey
       }
     }
   }
@@ -60,10 +63,10 @@ subprojects {
     repositories {
       maven {
         name = "GitHub-Publish-Repo"
-        url = uri("https://maven.pkg.github.com/pauldaniv/${rootProject.name}")
+        url = uri("$packagesUrl/${rootProject.name}")
         credentials {
           username = githubUsr
-          password = githubKey
+          password = publishKey
         }
       }
     }
