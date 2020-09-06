@@ -2,13 +2,13 @@ plugins {
   id("com.bmuschko.docker-spring-boot-application") version "6.2.0"
 }
 
-version = "1.0-SNAPSHOT"
+version = "0.0.1-SNAPSHOT"
 
 dependencies {
   implementation(project(":api"))
   implementation(project(":persistence"))
-  implementation("com.pauldaniv.java.library.template:first:1.0-SNAPSHOT")
-  implementation("com.pauldaniv.java.library.template:second:1.0-SNAPSHOT")
+  implementation("com.pauldaniv.java.library.template:first:0.0.1-SNAPSHOT")
+  implementation("com.pauldaniv.java.library.template:second:0.0.1-SNAPSHOT")
 }
 
 docker {

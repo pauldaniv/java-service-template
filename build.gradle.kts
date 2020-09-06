@@ -30,21 +30,11 @@ subprojects {
   repositories {
     jcenter()
     mavenCentral()
-    maven {
-      name = "GitHub-Maven-Repo"
-      url = uri("https://maven.pkg.github.com/pauldaniv/bom-template")
-      credentials {
-        username = githubUsr
-        password = packageKey
-      }
-    }
-    maven {
-      name = "GitHub-Maven-Repo"
-      url = uri("https://maven.pkg.github.com/pauldaniv/java-library-template")
-      credentials {
-        username = githubUsr
-        password = packageKey
-      }
+    repoForName(
+        "bom-template",
+        "java-library-template"
+    ) {
+      maven(it)
     }
   }
 
@@ -111,6 +101,18 @@ subprojects {
   tasks.jar {
     enabled = true
   }
+}
+
+fun repoForName(vararg repos: String, repoRegistrar: (MavenArtifactRepository.() -> Unit) -> Unit) = repos.forEach {
+  val maven: MavenArtifactRepository.() -> Unit = {
+    name = "GitHubPackages"
+    url = uri("$packagesUrl/$it")
+    credentials {
+      username = githubUsr
+      password = packageKey
+    }
+  }
+  repoRegistrar(maven)
 }
 
 fun findParam(vararg names: String): String? {
